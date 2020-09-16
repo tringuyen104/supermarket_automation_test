@@ -50,3 +50,8 @@ Scenario: Register with user exist
 Scenario: Register with email exist
 	Given Register with email exist
 	Then Show error message is "The e-mail address that you entered is already in use. Please enter a different e-mail address."
+	
+@RegisterWithCorrectData
+Scenario: Register success with correct data
+	Given Register success with correct data
+	Then Show success message is "Your account has been created."

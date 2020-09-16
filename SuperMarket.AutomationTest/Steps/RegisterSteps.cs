@@ -100,7 +100,7 @@ namespace SuperMarket.AutomationTest.Steps
             _driver.FindElement(By.Id("ConfirmPassword")).SendKeys("abc1234");
             _driver.FindElement(By.Id("Answer")).SendKeys("red");
 
-            ((IJavaScriptExecutor)_driver).ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
             _driver.FindElement(By.Id("StepNextButton")).Click();
         }
         
@@ -113,7 +113,7 @@ namespace SuperMarket.AutomationTest.Steps
             _driver.FindElement(By.Id("ConfirmPassword")).SendKeys("abc1234");
             _driver.FindElement(By.Id("Answer")).SendKeys("red");
 
-            ((IJavaScriptExecutor)_driver).ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
             _driver.FindElement(By.Id("StepNextButton")).Click();
         }
         
@@ -126,7 +126,7 @@ namespace SuperMarket.AutomationTest.Steps
             _driver.FindElement(By.Id("ConfirmPassword")).SendKeys("abc1234");
             _driver.FindElement(By.Id("Answer")).SendKeys("red");
 
-            ((IJavaScriptExecutor)_driver).ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", _driver.FindElement(By.Id("agreement")));
             _driver.FindElement(By.Id("StepNextButton")).Click();
         }
         
@@ -152,23 +152,40 @@ namespace SuperMarket.AutomationTest.Steps
             _driver.FindElement(By.Id("Answer")).SendKeys("red");
 
             var element = _driver.FindElement(By.Id("agreement"));
-            ((IJavaScriptExecutor)_driver).ExecuteScript("$('#agreement').trigger('click')", element);
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", element);
             _driver.FindElement(By.Id("StepNextButton")).Click();
         }
 
         [Given(@"Register with email exist")]
         public void GivenRegisterWithEmailExist()
         {
-            _driver.FindElement(By.Id("FullName")).SendKeys("test1");
+            new WebDriverWait(_driver, TimeSpan.FromSeconds(3));
+            _driver.FindElement(By.Id("FullName")).SendKeys("emailExist");
             _driver.FindElement(By.Id("Email")).SendKeys("tnguyen1@gmail.com");
-            WebDriverWait wait = new WebDriverWait(_driver, TimeSpan.FromSeconds(10));
             _driver.FindElement(By.Id("UserName")).SendKeys("emailExist");
             _driver.FindElement(By.Id("Password")).SendKeys("tnguyen@123");
             _driver.FindElement(By.Id("ConfirmPassword")).SendKeys("tnguyen@123");
             _driver.FindElement(By.Id("Answer")).SendKeys("red");
 
             var element = _driver.FindElement(By.Id("agreement"));
-            ((IJavaScriptExecutor)_driver).ExecuteScript("$('#agreement').trigger('click')", element);
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", element);
+            _driver.FindElement(By.Id("StepNextButton")).Click();
+        }
+
+        [Given(@"Register success with correct data")]
+        public void GivenRegisterSuccessWithCorrectData()
+        {
+            Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            string user_name = String.Concat("user", unixTimestamp.ToString());
+            _driver.FindElement(By.Id("FullName")).SendKeys(user_name);
+            _driver.FindElement(By.Id("Email")).SendKeys($"{user_name}@test.com");
+            _driver.FindElement(By.Id("UserName")).SendKeys(user_name);
+            _driver.FindElement(By.Id("Password")).SendKeys("tnguyen@123");
+            _driver.FindElement(By.Id("ConfirmPassword")).SendKeys("tnguyen@123");
+            _driver.FindElement(By.Id("Answer")).SendKeys("red");
+
+            var element = _driver.FindElement(By.Id("agreement"));
+            _jsExecutor.ExecuteScript("$('#agreement').trigger('click')", element);
             _driver.FindElement(By.Id("StepNextButton")).Click();
         }
 
@@ -191,23 +208,6 @@ namespace SuperMarket.AutomationTest.Steps
             Assert.AreEqual(style, "display: inline;");
         }
 
-        //[Then(@"Show error message validate input is ""(.*)""")]
-        //public void ThenShowErrorMessageValidateInputIs(string message)
-        //{
-        //    new WebDriverWait(_driver, TimeSpan.FromSeconds(3));
-        //    var element = _driver.FindElement(By.Id("CreateUserWizardMember"));
-        //    String validateMessage = (String)_jsExecutor.ExecuteScript("return arguments[0].validationMessage;", element);
-        //    Assert.AreEqual(validateMessage, message);
-        //}
-        //[Then(@"Show error message validate input is ""(.*)"" with Id is ""(.*)""")]
-        //public void ThenShowErrorMessageValidateInputIsWithIdIs(string message, string id)
-        //{
-        //    new WebDriverWait(_driver, TimeSpan.FromSeconds(3));
-        //    var element = _driver.FindElement(By.Id(id));
-        //    String validateMessage = (String)_jsExecutor.ExecuteScript("return arguments[0].validationMessage;", element);
-        //    Assert.AreEqual(validateMessage, message);
-        //}
-
         [Then(@"Show error message validate input is ""(.*)""\twith Id is ""(.*)""")]
         public void ThenShowErrorMessageValidateInputIsWithIdIs(string message, string id)
         {
@@ -228,5 +228,14 @@ namespace SuperMarket.AutomationTest.Steps
             alert.Dismiss();
         }
 
+        [Then(@"Show success message is ""(.*)""")]
+        public void ThenShowSuccessMessageIs(string message)
+        {
+            string value = _driver.FindElement(By.XPath("//table//h4")).Text;
+            Assert.AreEqual(message, value);
+            _driver.FindElement(By.Id("Header_LoginViewHeader_HyperLink1")).Click();
+            _driver.FindElement(By.Id("dropdownMenu1")).Click();
+            _driver.FindElement(By.Id("Header_LoginViewHeader_LoginStatus1")).Click();
+        }
     }
 }
